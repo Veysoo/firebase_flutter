@@ -10,7 +10,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -37,8 +37,10 @@ class MyhomePage extends StatefulWidget {
 class _MyhomePageState extends State<MyhomePage> {
   late FirebaseAuth auth;
   String firstnamee = '', secondnamee = '', emaill = '', passwordd = '';
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  late FirebaseFirestore firestore;
   var _myUser;
+  CollectionReference users =
+      FirebaseFirestore.instance.collection('Kullanıcılar');
 
   final _formState = GlobalKey<FormState>();
 
@@ -46,6 +48,7 @@ class _MyhomePageState extends State<MyhomePage> {
   void initState() {
     super.initState();
     auth = FirebaseAuth.instance;
+    firestore = FirebaseFirestore.instance;
 
     auth.authStateChanges().listen((User? user) {
       if (user == null) {
@@ -150,12 +153,13 @@ class _MyhomePageState extends State<MyhomePage> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
-                            bool _validate = _formState.currentState!.validate();
+                            bool _validate =
+                                _formState.currentState!.validate();
                             if (_validate) {
                               _formState.currentState!.save();
                             }
                             signIn(emaill, passwordd);
-                                        
+
                             if (_myUser != null) {
                               Navigator.pushReplacement(
                                 context,
@@ -164,45 +168,57 @@ class _MyhomePageState extends State<MyhomePage> {
                               );
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Böyle bir hesap yok")));
+                                  SnackBar(
+                                      content: Text("Böyle bir hesap yok")));
                             }
                           },
                           child: Text(
                             "Giriş yap",
                             style: TextStyle(color: Colors.black),
                           ),
-                          style:
-                              ElevatedButton.styleFrom(primary: Colors.amberAccent),
+                          style: ElevatedButton.styleFrom(
+                              primary: Colors.amberAccent),
                         ),
                       ),
-                      SizedBox(width: 10,height: 10,),
+                      SizedBox(
+                        width: 10,
+                        height: 10,
+                      ),
                       Expanded(
                         child: ElevatedButton(
                             onPressed: () {
-                              bool _validate = _formState.currentState!.validate();
+                              bool _validate =
+                                  _formState.currentState!.validate();
                               if (_validate) {
                                 _formState.currentState!.save();
                               }
                               logout();
-                              Navigator.pop(context);
                             },
                             child: Text(
-                              "Çıkış yap",
+                              "Hesaptan Çıkış yap",
                               style: TextStyle(color: Colors.black),
                             ),
                             style: ElevatedButton.styleFrom(
                               primary: Colors.amber,
                             )),
                       ),
-                      SizedBox(width: 10,height: 10,),
+                      SizedBox(
+                        width: 10,
+                        height: 10,
+                      ),
                       Expanded(
                         child: ElevatedButton(
                             onPressed: () {
-                              bool _validate = _formState.currentState!.validate();
+                              bool _validate =
+                                  _formState.currentState!.validate();
                               if (_validate) {
                                 _formState.currentState!.save();
                               }
-                              fireStoreVeriEkle(firstnamee, secondnamee, emaill);
+                              users.add({
+                                'email': emaill,
+                                'isim': firstnamee,
+                                'soyisim': secondnamee
+                              });
                               createUser(emaill, passwordd);
                             },
                             child: Text(
@@ -216,7 +232,6 @@ class _MyhomePageState extends State<MyhomePage> {
                     ],
                   ),
                 ),
-                
               ],
             ),
           ),
@@ -252,11 +267,12 @@ class _MyhomePageState extends State<MyhomePage> {
   }
 
   void fireStoreVeriEkle(String isim, String soyisim, String email) async {
-    Map<String, dynamic> eklenenveri = <String, dynamic>{};
-    eklenenveri['isim'] = isim;
-    eklenenveri['soyisim'] = soyisim;
-    eklenenveri['email'] = email;
+    Map<String, dynamic> _eklenenveri = <String, dynamic>{
+      'email': email,
+      'isim': isim,
+      'soyisim': soyisim,
+    };
 
-    await firestore.collection('users').add(eklenenveri);
+    await firestore.collection("users").add(_eklenenveri);
   }
 }
