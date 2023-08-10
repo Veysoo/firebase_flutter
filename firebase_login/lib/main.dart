@@ -306,10 +306,12 @@ class _MyhomePageState extends State<MyhomePage> {
       String email, String sifre, String isim, String soyisim) async {
     final preferences = await SharedPreferences.getInstance();
 
-    await preferences.setString("email", email);
-    await preferences.setString("sifre", sifre);
-    await preferences.setString("isim", isim);
-    await preferences.setString("soyisim", soyisim);
+      setState(() {
+        preferences.setString("email", email);
+        preferences.setString("sifre", sifre);
+        preferences.setString("isim", isim);
+        preferences.setString("soyisim", soyisim);
+      });
   }
 
   void verileriOku() async {
